@@ -37,7 +37,8 @@ class ConvertWordToPDFView(APIView):
                     pdf.multi_cell(0, 10, para.text)
                 pdf.output(temp_pdf_path)
             except Exception as e:
-                return Response({'detail': f'Erro na conversão: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                import traceback
+                return Response({'detail': f'Erro na conversão: {str(e)}', 'trace': traceback.format_exc()}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             pdf_file = open(temp_pdf_path, 'rb')
             response = FileResponse(pdf_file, as_attachment=True, filename='convertido.pdf')
             return response

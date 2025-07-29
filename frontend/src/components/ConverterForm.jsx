@@ -173,7 +173,12 @@ const ConverterForm = () => {
         const blob = await res.blob();
         setResult(URL.createObjectURL(blob));
       } else {
-        setResult('Erro ao converter arquivo.');
+        try {
+          const errorJson = await res.json();
+          setResult(errorJson.detail || 'Erro ao converter arquivo.');
+        } catch {
+          setResult('Erro ao converter arquivo.');
+        }
       }
     } catch {
       setResult('Erro de conexão.');
