@@ -32,7 +32,6 @@ DJANGO_DEBUG=False
   ```
 - **Build Command:**  
   ```
-  apt-get update && apt-get install -y ffmpeg
   pip install -r requirements.txt
   ```
 - **Root Directory:** `backend`
