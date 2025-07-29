@@ -7,7 +7,6 @@ pdf2docx>=0.5.6
 yt-dlp>=2025.7.21
 lxml>=6.0.0
 gunicorn
-dj-database-url
 python-dotenv
 docx2pdf
 fpdf

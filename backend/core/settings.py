@@ -26,10 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-%czm9(%li@&b055%)hnd!mw*pr$vdy5%&wxbwf&dp7@ey$76l@")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
+DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get("ALLOWED_HOSTS") else [
-    "conversor-download-arquivos.onrender.com"
+    "conversor-download-arquivos.onrender.com",
+    "localhost",
+    "127.0.0.1"
 ]
 
 
@@ -82,11 +84,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-import dj_database_url
-
-DATABASES = {
-    "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
-}
+# Nenhuma configuração de banco de dados necessária
 
 
 # Password validation
@@ -136,5 +134,6 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "https://conversor-download-arquivos-1.onrender.com",
-    "https://conversor-download-arquivos.onrender.com"
+    "https://conversor-download-arquivos.onrender.com",
+    "http://localhost:5173"
 ]
