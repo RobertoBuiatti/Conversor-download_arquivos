@@ -9,7 +9,8 @@ import os
 class ConvertWordToPDFView(APIView):
     def post(self, request):
         import tempfile
-        from docx2pdf import convert
+        from docx import Document
+        from fpdf import FPDF
 
         file = request.FILES.get('file')
         if not file or not file.name.endswith(('.doc', '.docx')):
@@ -21,10 +22,16 @@ class ConvertWordToPDFView(APIView):
             temp_pdf_path = temp_docx.name.replace('.docx', '.pdf')
 
             try:
-                convert(temp_docx.name, temp_pdf_path)
+                doc = Document(temp_docx.name)
+                pdf = FPDF()
+                pdf.add_page()
+                pdf.set_auto_page_break(auto=True, margin=15)
+                pdf.set_font("Arial", size=12)
+                for para in doc.paragraphs:
+                    pdf.multi_cell(0, 10, para.text)
+                pdf.output(temp_pdf_path)
             except Exception as e:
                 return Response({'detail': f'Erro na conversão: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            # Abre o arquivo fora do bloco with para evitar fechamento prematuro
             pdf_file = open(temp_pdf_path, 'rb')
             response = FileResponse(pdf_file, as_attachment=True, filename='convertido.pdf')
             return response
