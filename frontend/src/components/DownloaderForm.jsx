@@ -3,6 +3,7 @@ import styles from './DownloaderForm.module.css';
 
 const DownloaderForm = () => {
   const [url, setUrl] = useState('');
+  const [format, setFormat] = useState('mp3');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -16,13 +17,13 @@ const DownloaderForm = () => {
       const res = await fetch(import.meta.env.VITE_API_URL + '/api/downloader/download-audio/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, format }),
       });
       if (res.ok) {
         const blob = await res.blob();
         setResult(URL.createObjectURL(blob));
       } else {
-        setResult('Erro ao baixar áudio.');
+        setResult('Erro ao baixar áudio/vídeo.');
       }
     } catch {
       setResult('Erro de conexão.');
@@ -41,12 +42,21 @@ const DownloaderForm = () => {
           placeholder="https://youtube.com/..."
         />
       </label>
+      <label>
+        Formato desejado:
+        <select value={format} onChange={e => setFormat(e.target.value)}>
+          <option value="mp3">Áudio MP3</option>
+          <option value="m4a">Áudio M4A</option>
+          <option value="mp4">Vídeo MP4</option>
+          <option value="webm">Vídeo WEBM</option>
+        </select>
+      </label>
       <button type="submit" disabled={loading}>
-        {loading ? 'Processando...' : 'Baixar Áudio'}
+        {loading ? 'Processando...' : 'Baixar'}
       </button>
       {result && (
         typeof result === 'string' && result.startsWith('http') ? (
-          <a href={result} download>Baixar áudio</a>
+          <a href={result} download>Baixar arquivo</a>
         ) : (
           <div className={styles.error}>{result}</div>
         )
