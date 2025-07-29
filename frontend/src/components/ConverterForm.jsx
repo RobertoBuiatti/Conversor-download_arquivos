@@ -268,15 +268,8 @@ const ConverterForm = () => {
       )}
       {result && operation === 'pdf-to-word' && (
         <div className={styles.preview}>
-          <span className={styles.previewTitle}>Pré-visualização do Word:</span>
-          <iframe
-            src={`https://docs.google.com/gview?url=${result}&embedded=true`}
-            title="Pré-visualização Word"
-            className={styles.iframe}
-            width="100%"
-            height="500px"
-            style={{ borderRadius: '12px', border: '2px solid #23262f', background: '#23262f' }}
-          />
+          <span className={styles.previewTitle}>Arquivo Word convertido:</span>
+          <a href={result} download className={styles.download}>Baixar arquivo convertido</a>
         </div>
       )}
     </div>
