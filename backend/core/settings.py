@@ -28,7 +28,9 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-%czm9(%li@&b05
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get("ALLOWED_HOSTS") else []
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get("ALLOWED_HOSTS") else [
+    "conversor-download-arquivos.onrender.com"
+]
 
 
 # Application definition
