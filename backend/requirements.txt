@@ -9,3 +9,4 @@ lxml>=6.0.0
 gunicorn
 dj-database-url
 python-dotenv
+docx2pdf
