@@ -10,3 +10,4 @@ gunicorn
 python-dotenv
 docx2pdf
 fpdf
+ffmpeg-python
