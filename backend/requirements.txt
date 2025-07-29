@@ -8,3 +8,4 @@ yt-dlp>=2025.7.21
 lxml>=6.0.0
 gunicorn
 dj-database-url
+python-dotenv
