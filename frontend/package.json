@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "docx-preview": "^1.7.0",
+    "docx-preview": "^1.6.0",
+    "axios": "^1.6.8",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
