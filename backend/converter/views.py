@@ -5,6 +5,12 @@ from django.http import FileResponse
 from django.core.files.storage import default_storage
 import tempfile
 import os
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+class HomeView(APIView):
+    def get(self, request):
+        return Response({"detail": "API Conversor rodando com sucesso."})
 
 class ConvertWordToPDFView(APIView):
     def post(self, request):

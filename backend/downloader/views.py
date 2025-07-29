@@ -1,8 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.http import FileResponse
+import re
 
 class DownloadAudioView(APIView):
+    """
+    API para baixar áudio ou vídeo do YouTube usando yt-dlp.
+    """
     def post(self, request):
         import tempfile
         import yt_dlp
@@ -11,7 +16,9 @@ class DownloadAudioView(APIView):
         url = request.data.get('url')
         format_choice = request.data.get('format', 'mp3')
 
-        if not url or 'youtube.com' not in url:
+        # Validação de URL do YouTube
+        youtube_regex = r'^(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+$'
+        if not url or not re.match(youtube_regex, url):
             return Response({'detail': 'URL do YouTube inválida.'}, status=status.HTTP_400_BAD_REQUEST)
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -46,10 +53,9 @@ class DownloadAudioView(APIView):
                     fname = 'audio' if format_choice in ['mp3', 'm4a'] else 'video'
                     file_path = os.path.join(tmpdir, f'{fname}.{ext}')
                     if os.path.exists(file_path):
-                        file_obj = open(file_path, 'rb')
-                        response = Response()
-                        response = FileResponse(file_obj, as_attachment=True, filename=f'{fname}.{ext}')
-                        return response
+                        with open(file_path, 'rb') as file_obj:
+                            response = FileResponse(file_obj, as_attachment=True, filename=f'{fname}.{ext}')
+                            return response
                 return Response({'detail': 'Arquivo não encontrado após download. Verifique se ffmpeg está instalado.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
                 if 'ffmpeg' in str(e).lower():

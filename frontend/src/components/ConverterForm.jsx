@@ -1,6 +1,10 @@
 import React, { useState, useRef } from 'react';
 import styles from './ConverterForm.module.css';
 
+/**
+ * Formulário para conversão de arquivos Word/PDF.
+ * Permite converter, juntar e remover páginas de PDFs.
+ */
 const ConverterForm = () => {
   const [file, setFile] = useState(null);
   const [files, setFiles] = useState([]);
@@ -13,12 +17,30 @@ const ConverterForm = () => {
   const inputRef = useRef();
   const multiInputRef = useRef();
 
+  // Valida arquivo (tipo e tamanho)
+  const validateFile = (file) => {
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (!allowedTypes.includes(file.type)) return false;
+    if (file.size > maxSize) return false;
+    return true;
+  };
+
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selected = e.target.files[0];
+    if (selected && !validateFile(selected)) {
+      alert('Arquivo inválido ou muito grande (máx 10MB).');
+      return;
+    }
+    setFile(selected);
   };
 
   const handleMultiFileChange = (e) => {
-    setFiles(prev => [...prev, ...Array.from(e.target.files)]);
+    const validFiles = Array.from(e.target.files).filter(validateFile);
+    if (validFiles.length !== e.target.files.length) {
+      alert('Algum arquivo é inválido ou muito grande (máx 10MB).');
+    }
+    setFiles(prev => [...prev, ...validFiles]);
   };
 
   const handleDragOver = (e) => {
@@ -242,18 +264,25 @@ const ConverterForm = () => {
             )}
           </>
         )}
-        <button type="submit" disabled={loading} className={styles.button}>
+        <button
+          type="submit"
+          disabled={loading}
+          className={styles.button}
+          aria-busy={loading}
+        >
           {loading ? 'Processando...' : 'Converter'}
         </button>
-        {result && (
-          typeof result === 'string' && result.startsWith('http') ? (
-            <a href={result} download className={styles.download}>Baixar arquivo convertido</a>
-          ) : (
-            <div className={styles.error}>{result}</div>
-          )
-        )}
+{result && (
+  <>
+    {(typeof result === 'string' && (result.startsWith('http') || result.startsWith('blob:'))) ? (
+      <a href={result} download className={styles.download}>Baixar arquivo convertido</a>
+    ) : (
+      <div className={styles.error}>{String(result)}</div>
+    )}
+  </>
+)}
       </form>
-      {(result && (operation === 'word-to-pdf' || operation === 'remove-pdf-pages' || operation === 'merge-pdfs')) && (
+      {(result && (operation === 'word-to-pdf' || operation === 'remove-pdf-pages' || operation === 'merge-pdfs') && typeof result === 'string' && (result.startsWith('http') || result.startsWith('blob:'))) && (
         <div className={styles.preview}>
           <span className={styles.previewTitle}>Pré-visualização do PDF:</span>
           <iframe
@@ -263,13 +292,14 @@ const ConverterForm = () => {
             width="100%"
             height="500px"
             style={{ borderRadius: '12px', border: '2px solid #23262f', background: '#23262f' }}
+            aria-label="Pré-visualização PDF"
           />
         </div>
       )}
-      {result && operation === 'pdf-to-word' && (
+      {(result && operation === 'pdf-to-word' && typeof result === 'string' && (result.startsWith('http') || result.startsWith('blob:'))) && (
         <div className={styles.preview}>
           <span className={styles.previewTitle}>Arquivo Word convertido:</span>
-          <a href={result} download className={styles.download}>Baixar arquivo convertido</a>
+          <a href={result} download className={styles.download} aria-label="Baixar arquivo Word convertido">Baixar arquivo convertido</a>
         </div>
       )}
     </div>
