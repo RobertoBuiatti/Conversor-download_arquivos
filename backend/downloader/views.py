@@ -46,8 +46,13 @@ class DownloadAudioView(APIView):
                 return Response({'detail': 'Formato inválido.'}, status=status.HTTP_400_BAD_REQUEST)
 
             try:
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    ydl.download([url])
+                try:
+                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                        ydl.download([url])
+                except Exception as e:
+                    if "Video unavailable" in str(e) or "This content isn’t available" in str(e):
+                        return Response({'detail': 'Vídeo indisponível ou protegido no YouTube.'}, status=status.HTTP_400_BAD_REQUEST)
+                    raise
                 # Procura o arquivo gerado
                 for ext in exts:
                     fname = 'audio' if format_choice in ['mp3', 'm4a'] else 'video'
@@ -60,4 +65,5 @@ class DownloadAudioView(APIView):
             except Exception as e:
                 if 'ffmpeg' in str(e).lower():
                     return Response({'detail': 'Erro: ffmpeg não está instalado no servidor. Instale ffmpeg para baixar áudio/vídeo.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                return Response({'detail': f'Erro ao baixar: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                import traceback
+                return Response({'detail': f'Erro ao baixar: {str(e)}', 'trace': traceback.format_exc()}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
