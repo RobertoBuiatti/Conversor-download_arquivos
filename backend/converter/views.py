@@ -34,7 +34,9 @@ class ConvertWordToPDFView(APIView):
                 pdf.set_auto_page_break(auto=True, margin=15)
                 pdf.set_font("helvetica", size=12)
                 for para in doc.paragraphs:
-                    pdf.multi_cell(0, 10, para.text)
+                    # Remove ou converte caracteres incompatíveis com latin-1
+                    safe_text = para.text.encode('latin-1', 'replace').decode('latin-1')
+                    pdf.multi_cell(0, 10, safe_text)
                 pdf.output(temp_pdf_path)
             except Exception as e:
                 import traceback
