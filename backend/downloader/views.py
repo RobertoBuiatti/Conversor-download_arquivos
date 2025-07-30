@@ -68,10 +68,10 @@ class DownloadAudioView(APIView):
         url = request.data.get('url')
         format_choice = request.data.get('format', 'mp3')
 
-        # Validação de URL do YouTube
-        youtube_regex = r'^(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+$'
-        if not url or not re.match(youtube_regex, url):
-            return Response({'detail': 'URL do YouTube inválida.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Validação de URL de vídeo (YouTube, Vimeo, etc.)
+        video_regex = r'^(https?\:\/\/)?(www\.youtube\.com|youtu\.be|vimeo\.com|www\.vimeo\.com|dailymotion\.com|www\.dailymotion\.com)\/.+$'
+        if not url or not re.match(video_regex, url):
+            return Response({'detail': 'URL de vídeo inválida ou não suportada.'}, status=status.HTTP_400_BAD_REQUEST)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             # Configuração de formatos

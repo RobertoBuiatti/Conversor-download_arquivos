@@ -2,95 +2,44 @@ import React, { useState, useRef } from 'react';
 import styles from './ConverterForm.module.css';
 
 /**
- * Formulário para conversão de arquivos Word/PDF.
- * Permite converter, juntar e remover páginas de PDFs.
+ * Formulário para conversão de arquivos (Word, PDF, vídeo, áudio, imagem, XML).
+ * Permite converter, juntar, remover páginas de PDFs, converter vídeo/áudio, imagens, XML e gerar relatório PDF.
  */
+const operations = [
+  { value: 'word-to-pdf', label: 'Word para PDF', accept: '.doc,.docx' },
+  { value: 'pdf-to-word', label: 'PDF para Word', accept: '.pdf' },
+  { value: 'merge-pdfs', label: 'Juntar PDFs', accept: '.pdf', multiple: true },
+  { value: 'remove-pdf-pages', label: 'Remover páginas do PDF', accept: '.pdf' },
+  { value: 'video-audio', label: 'Vídeo ↔ Áudio', accept: '.mp4,.webm,.avi,.mov,.mkv,.mp3,.wav,.aac,.m4a,.ogg' },
+  { value: 'image', label: 'Converter Imagem', accept: '.jpg,.jpeg,.png,.webp,.bmp,.tiff' },
+  { value: 'xml', label: 'Converter/Validar XML', accept: '.xml' },
+  { value: 'report-pdf', label: 'Gerar relatório PDF', accept: '' },
+];
+
+const formatOptions = {
+  'video-audio': ['mp3', 'wav', 'aac', 'm4a', 'ogg', 'mp4', 'webm', 'avi', 'mov', 'mkv'],
+  image: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff'],
+};
+
 const ConverterForm = () => {
   const [file, setFile] = useState(null);
   const [files, setFiles] = useState([]);
   const [operation, setOperation] = useState('word-to-pdf');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [dragActive, setDragActive] = useState(false);
-  const [multiDragActive, setMultiDragActive] = useState(false);
   const [pages, setPages] = useState('');
+  const [targetFormat, setTargetFormat] = useState('');
+  const [xmlAction, setXmlAction] = useState('to_json');
+  const [reportFiles, setReportFiles] = useState([]);
   const inputRef = useRef();
   const multiInputRef = useRef();
 
-  // Valida arquivo (tipo e tamanho)
-  const validateFile = (file) => {
-    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (!allowedTypes.includes(file.type)) return false;
-    if (file.size > maxSize) return false;
-    return true;
-  };
-
   const handleFileChange = (e) => {
-    const selected = e.target.files[0];
-    if (selected && !validateFile(selected)) {
-      alert('Arquivo inválido ou muito grande (máx 10MB).');
-      return;
-    }
-    setFile(selected);
+    setFile(e.target.files[0]);
   };
 
   const handleMultiFileChange = (e) => {
-    const validFiles = Array.from(e.target.files).filter(validateFile);
-    if (validFiles.length !== e.target.files.length) {
-      alert('Algum arquivo é inválido ou muito grande (máx 10MB).');
-    }
-    setFiles(prev => [...prev, ...validFiles]);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleMultiDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setMultiDragActive(true);
-  };
-
-  const handleMultiDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setMultiDragActive(false);
-  };
-
-  const handleMultiDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setMultiDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setFiles(prev => [...prev, ...Array.from(e.dataTransfer.files)]);
-    }
-  };
-
-  const handleClickInput = () => {
-    inputRef.current.click();
-  };
-
-  const handleClickMultiInput = () => {
-    multiInputRef.current.click();
+    setFiles(Array.from(e.target.files));
   };
 
   const handleOperationChange = (e) => {
@@ -99,31 +48,18 @@ const ConverterForm = () => {
     setFiles([]);
     setFile(null);
     setPages('');
+    setTargetFormat('');
+    setXmlAction('to_json');
+    setReportFiles([]);
   };
 
-  const handlePagesChange = (e) => {
-    setPages(e.target.value);
-  };
+  const handlePagesChange = (e) => setPages(e.target.value);
 
-  // Funções para manipular a lista de arquivos
-  const moveFileUp = (idx) => {
-    if (idx === 0) return;
-    const newFiles = [...files];
-    [newFiles[idx - 1], newFiles[idx]] = [newFiles[idx], newFiles[idx - 1]];
-    setFiles(newFiles);
-  };
+  const handleTargetFormatChange = (e) => setTargetFormat(e.target.value);
 
-  const moveFileDown = (idx) => {
-    if (idx === files.length - 1) return;
-    const newFiles = [...files];
-    [newFiles[idx], newFiles[idx + 1]] = [newFiles[idx + 1], newFiles[idx]];
-    setFiles(newFiles);
-  };
+  const handleXmlActionChange = (e) => setXmlAction(e.target.value);
 
-  const removeFile = (idx) => {
-    const newFiles = files.filter((_, i) => i !== idx);
-    setFiles(newFiles);
-  };
+  const handleReportFilesChange = (e) => setReportFiles(Array.from(e.target.files));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -131,8 +67,9 @@ const ConverterForm = () => {
     setResult(null);
 
     const formData = new FormData();
-
     let endpoint = '';
+    let filesData = null;
+
     switch (operation) {
       case 'word-to-pdf':
         if (!file) return setLoading(false);
@@ -160,8 +97,40 @@ const ConverterForm = () => {
         ));
         endpoint = '/api/converter/remove-pdf-pages/';
         break;
+      case 'video-audio':
+        if (!file || !targetFormat) return setLoading(false);
+        formData.append('file', file);
+        formData.append('target_format', targetFormat);
+        endpoint = '/api/converter/video-audio/';
+        break;
+      case 'image':
+        if (!file || !targetFormat) return setLoading(false);
+        formData.append('file', file);
+        formData.append('target_format', targetFormat);
+        endpoint = '/api/converter/image/';
+        break;
+      case 'xml':
+        if (!file) return setLoading(false);
+        formData.append('file', file);
+        formData.append('action', xmlAction);
+        endpoint = '/api/converter/xml/';
+        break;
+      case 'report-pdf':
+        if (!reportFiles.length) return setLoading(false);
+        filesData = reportFiles.map(f => ({
+          name: f.name,
+          type: f.type,
+          size: f.size,
+          status: 'Processado',
+          datetime: new Date().toLocaleString(),
+        }));
+        endpoint = '/api/converter/report-pdf/';
+        break;
       default:
         endpoint = '';
+    }
+    if (operation === 'report-pdf' && filesData) {
+      formData.append('files', JSON.stringify(filesData));
     }
 
     try {
@@ -170,12 +139,21 @@ const ConverterForm = () => {
         body: formData,
       });
       if (res.ok) {
-        const blob = await res.blob();
-        setResult(URL.createObjectURL(blob));
+        if (operation === 'xml') {
+          const json = await res.json();
+          setResult(JSON.stringify(json, null, 2));
+        } else {
+          const blob = await res.blob();
+          setResult(URL.createObjectURL(blob));
+        }
       } else {
         try {
           const errorJson = await res.json();
-          setResult(errorJson.detail || 'Erro ao converter arquivo.');
+          setResult(
+            (errorJson.detail ? `Detalhe: ${errorJson.detail}\n` : '') +
+            (errorJson.trace ? `Trace:\n${errorJson.trace}` : '') ||
+            'Erro ao converter arquivo.'
+          );
         } catch {
           setResult('Erro ao converter arquivo.');
         }
@@ -189,20 +167,24 @@ const ConverterForm = () => {
   return (
     <div className={styles.wrapper}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        {operation !== 'merge-pdfs' && (
-          <div
-            className={`${styles.dropzone} ${dragActive ? styles.active : ''}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onClick={handleClickInput}
-          >
+        <label className={styles.label}>
+          Operação:
+          <select value={operation} onChange={handleOperationChange} className={styles.select}>
+            {operations.map(op => (
+              <option key={op.value} value={op.value}>{op.label}</option>
+            ))}
+          </select>
+        </label>
+
+        {/* Upload de arquivo único */}
+        {['word-to-pdf', 'pdf-to-word', 'remove-pdf-pages', 'video-audio', 'image', 'xml'].includes(operation) && (
+          <div className={styles.dropzone} onClick={() => inputRef.current.click()}>
             <input
               type="file"
               ref={inputRef}
               style={{ display: 'none' }}
+              accept={operations.find(op => op.value === operation)?.accept || '*'}
               onChange={handleFileChange}
-              accept=".pdf,.doc,.docx"
             />
             {file ? (
               <span className={styles.filename}>{file.name}</span>
@@ -213,15 +195,34 @@ const ConverterForm = () => {
             )}
           </div>
         )}
-        <label className={styles.label}>
-          Operação:
-          <select value={operation} onChange={handleOperationChange} className={styles.select}>
-            <option value="word-to-pdf">Word para PDF</option>
-            <option value="pdf-to-word">PDF para Word</option>
-            <option value="merge-pdfs">Juntar PDFs</option>
-            <option value="remove-pdf-pages">Remover páginas do PDF</option>
-          </select>
-        </label>
+
+        {/* Upload múltiplo para merge-pdfs */}
+        {operation === 'merge-pdfs' && (
+          <div className={styles.dropzone} onClick={() => multiInputRef.current.click()}>
+            <input
+              type="file"
+              ref={multiInputRef}
+              style={{ display: 'none' }}
+              multiple
+              accept=".pdf"
+              onChange={handleMultiFileChange}
+            />
+            <span className={styles.droptext}>
+              Arraste e solte os PDFs aqui ou clique para selecionar
+            </span>
+            {files.length > 0 && (
+              <div className={styles.filelist}>
+                {files.map((f, idx) => (
+                  <div key={idx} className={styles.fileitem}>
+                    <span className={styles.filename}>{f.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Seleção de páginas para remover */}
         {operation === 'remove-pdf-pages' && (
           <label className={styles.label}>
             Páginas para remover (ex: 0,2,4):
@@ -234,41 +235,56 @@ const ConverterForm = () => {
             />
           </label>
         )}
-        {operation === 'merge-pdfs' && (
-          <>
-            <div
-              className={`${styles.dropzone} ${multiDragActive ? styles.active : ''}`}
-              onDragOver={handleMultiDragOver}
-              onDragLeave={handleMultiDragLeave}
-              onDrop={handleMultiDrop}
-              onClick={handleClickMultiInput}
-            >
-              <input
-                type="file"
-                ref={multiInputRef}
-                style={{ display: 'none' }}
-                multiple
-                accept=".pdf"
-                onChange={handleMultiFileChange}
-              />
-              <span className={styles.droptext}>
-                Arraste e solte os PDFs aqui ou clique para selecionar (ordem será mantida)
-              </span>
-            </div>
-            {files.length > 0 && (
+
+        {/* Seleção de formato de destino para vídeo/áudio e imagem */}
+        {['video-audio', 'image'].includes(operation) && (
+          <label className={styles.label}>
+            Formato de destino:
+            <select value={targetFormat} onChange={handleTargetFormatChange} className={styles.select}>
+              <option value="">Selecione</option>
+              {formatOptions[operation].map(fmt => (
+                <option key={fmt} value={fmt}>{fmt.toUpperCase()}</option>
+              ))}
+            </select>
+          </label>
+        )}
+
+        {/* Seleção de ação para XML */}
+        {operation === 'xml' && (
+          <label className={styles.label}>
+            Ação:
+            <select value={xmlAction} onChange={handleXmlActionChange} className={styles.select}>
+              <option value="to_json">Converter para JSON</option>
+              <option value="validate">Validar XML</option>
+            </select>
+          </label>
+        )}
+
+        {/* Upload múltiplo para relatório PDF */}
+        {operation === 'report-pdf' && (
+          <div className={styles.dropzone} onClick={() => multiInputRef.current.click()}>
+            <input
+              type="file"
+              ref={multiInputRef}
+              style={{ display: 'none' }}
+              multiple
+              onChange={handleReportFilesChange}
+            />
+            <span className={styles.droptext}>
+              Selecione os arquivos para gerar o relatório PDF
+            </span>
+            {reportFiles.length > 0 && (
               <div className={styles.filelist}>
-                {files.map((f, idx) => (
+                {reportFiles.map((f, idx) => (
                   <div key={idx} className={styles.fileitem}>
                     <span className={styles.filename}>{f.name}</span>
-                    <button type="button" className={styles.movebtn} onClick={() => moveFileUp(idx)} disabled={idx === 0}>↑</button>
-                    <button type="button" className={styles.movebtn} onClick={() => moveFileDown(idx)} disabled={idx === files.length - 1}>↓</button>
-                    <button type="button" className={styles.removebtn} onClick={() => removeFile(idx)}>✕</button>
                   </div>
                 ))}
               </div>
             )}
-          </>
+          </div>
         )}
+
         <button
           type="submit"
           disabled={loading}
@@ -277,17 +293,18 @@ const ConverterForm = () => {
         >
           {loading ? 'Processando...' : 'Converter'}
         </button>
-{result && (
-  <>
-    {(typeof result === 'string' && (result.startsWith('http') || result.startsWith('blob:'))) ? (
-      <a href={result} download className={styles.download}>Baixar arquivo convertido</a>
-    ) : (
-      <div className={styles.error}>{String(result)}</div>
-    )}
-  </>
-)}
+        {result && (
+          <>
+            {(typeof result === 'string' && (result.startsWith('http') || result.startsWith('blob:'))) ? (
+              <a href={result} download className={styles.download}>Baixar arquivo convertido</a>
+            ) : (
+              <div className={styles.error} style={{ whiteSpace: 'pre-wrap' }}>{String(result)}</div>
+            )}
+          </>
+        )}
       </form>
-      {(result && (operation === 'word-to-pdf' || operation === 'remove-pdf-pages' || operation === 'merge-pdfs') && typeof result === 'string' && (result.startsWith('http') || result.startsWith('blob:'))) && (
+      {/* Pré-visualização para PDF/Word/XML */}
+      {(result && ['word-to-pdf', 'remove-pdf-pages', 'merge-pdfs', 'report-pdf'].includes(operation) && typeof result === 'string' && (result.startsWith('http') || result.startsWith('blob:'))) && (
         <div className={styles.preview}>
           <span className={styles.previewTitle}>Pré-visualização do PDF:</span>
           <iframe
@@ -305,6 +322,12 @@ const ConverterForm = () => {
         <div className={styles.preview}>
           <span className={styles.previewTitle}>Arquivo Word convertido:</span>
           <a href={result} download className={styles.download} aria-label="Baixar arquivo Word convertido">Baixar arquivo convertido</a>
+        </div>
+      )}
+      {(result && operation === 'xml' && typeof result === 'string' && !result.startsWith('http') && !result.startsWith('blob:')) && (
+        <div className={styles.preview}>
+          <span className={styles.previewTitle}>Resultado XML:</span>
+          <pre className={styles.json}>{result}</pre>
         </div>
       )}
     </div>
