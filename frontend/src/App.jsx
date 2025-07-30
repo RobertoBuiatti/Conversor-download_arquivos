@@ -8,7 +8,7 @@ function App() {
 
   return (
     <div>
-      <nav style={{ display: 'flex', gap: '1rem', justifyContent: 'center', margin: '2rem 0' }}>
+      <nav className="navBar">
         <button onClick={() => setPage('converter')}>Conversor de Arquivos</button>
         <button onClick={() => setPage('recognizer')}>Reconhecer Documento</button>
         <button onClick={() => setPage('remove-bg')}>Remover Fundo Imagem</button>

@@ -9,6 +9,7 @@
   padding-left: 4vw;
   padding-right: 4vw;
   box-sizing: border-box;
+  margin-top: 0;
 }
 
 .form {
@@ -18,7 +19,7 @@
   gap: var(--space-lg);
   max-width: 440px;
   min-width: 320px;
-  margin: var(--space-xl) auto;
+  margin: 2rem auto 0 auto;
   padding: var(--space-xl);
   background: var(--color-bg-gradient);
   border-radius: var(--border-radius-xl);
@@ -127,7 +128,7 @@
   align-items: center;
   color: var(--color-text-light);
   flex: 1 1 340px;
-  margin: var(--space-xl) auto;
+  margin: 0 auto;
 }
 
 .result {
