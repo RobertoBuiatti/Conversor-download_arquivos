@@ -68,16 +68,16 @@ const ConverterForm = () => {
 		setFiles(Array.from(e.target.files));
 	};
 
-	const handleOperationChange = (e) => {
-		setOperation(e.target.value);
-		setResult(null);
-		setFiles([]);
-		setFile(null);
-		setPages("");
-		setTargetFormat("");
-		setXmlAction("to_json");
-		setReportFiles([]);
-	};
+const handleOperationChange = (e) => {
+setOperation(e.target.value);
+setResult(null);
+setFiles([]);
+setFile(null);
+setPages("");
+setTargetFormat("");
+setXmlAction("to_json");
+// Removido setReportFiles, pois não existe no estado.
+};
 
 	const handlePagesChange = (e) => setPages(e.target.value);
 
@@ -91,9 +91,8 @@ const ConverterForm = () => {
 		setLoading(true);
 		setResult(null);
 
-		const formData = new FormData();
-		let endpoint = "";
-		let filesData = null;
+const formData = new FormData();
+let endpoint = "";
 
 		switch (operation) {
 			case "word-to-pdf":
@@ -322,28 +321,29 @@ endpoint = "";
 				>
 					{loading ? "Processando..." : "Converter"}
 				</button>
-				{result && (
-					<>
-						{typeof result === "string" &&
-						(result.startsWith("http") ||
-							result.startsWith("blob:")) ? (
-							<a
-								href={result}
-								download
-								className={styles.download}
-							>
-								Baixar arquivo convertido
-							</a>
-						) : (
-							<div
-								className={styles.error}
-								style={{ whiteSpace: "pre-wrap" }}
-							>
-								{String(result)}
-							</div>
-						)}
-					</>
-				)}
+{result && (
+<>
+{typeof result === "string" &&
+(result.startsWith("http") ||
+result.startsWith("blob:")) &&
+!result.includes("Erro") ? (
+<a
+href={result}
+download
+className={styles.download}
+>
+Baixar arquivo convertido
+</a>
+) : (
+<div
+className={styles.error}
+style={{ whiteSpace: "pre-wrap" }}
+>
+{String(result)}
+</div>
+)}
+</>
+)}
 			</form>
 			{/* Pré-visualização para PDF/Word/XML */}
 {result &&
