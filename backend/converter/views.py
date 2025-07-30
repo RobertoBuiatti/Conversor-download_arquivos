@@ -289,6 +289,38 @@ class GenerateReportPDFView(APIView):
 
 import uuid
 
+from rest_framework.parsers import MultiPartParser, FormParser
+
+class RemoveBackgroundView(APIView):
+    """
+    Remove o fundo de uma imagem enviada via POST.
+    """
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        file = request.FILES.get('file')
+        if not file:
+            return Response({'detail': 'Arquivo não enviado.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            import tempfile
+            from rembg import remove
+            from PIL import Image
+
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_in:
+                temp_in.write(file.read())
+                temp_in.flush()
+                input_image = Image.open(temp_in.name)
+                output_image = remove(input_image)
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_out:
+                    output_image.save(temp_out.name, format='PNG')
+                    temp_out.flush()
+                    out_file = open(temp_out.name, 'rb')
+                    response = FileResponse(out_file, as_attachment=True, filename='imagem-sem-fundo.png')
+                    return response
+        except Exception as e:
+            import traceback
+            return Response({'detail': f'Erro ao remover fundo: {str(e)}', 'trace': traceback.format_exc()}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class AsyncUploadView(APIView):
     """
     Upload assíncrono de arquivos grandes. Retorna um ID para acompanhamento.

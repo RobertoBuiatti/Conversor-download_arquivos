@@ -60,13 +60,15 @@ const ConverterForm = () => {
 	const inputRef = useRef();
 	const multiInputRef = useRef();
 
-	const handleFileChange = (e) => {
-		setFile(e.target.files[0]);
-	};
+const handleFileChange = (e) => {
+  // Não limpe o estado file após seleção válida
+  setFile(e.target.files[0]);
+};
 
-	const handleMultiFileChange = (e) => {
-		setFiles(Array.from(e.target.files));
-	};
+const handleMultiFileChange = (e) => {
+  // Não limpe o estado files após seleção válida
+  setFiles(Array.from(e.target.files));
+};
 
 const handleOperationChange = (e) => {
 setOperation(e.target.value);

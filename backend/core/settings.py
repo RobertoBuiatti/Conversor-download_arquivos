@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "converter",
     "downloader",
+    "removerfundo",
     "rest_framework",
     "corsheaders",
 ]

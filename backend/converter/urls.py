@@ -9,6 +9,7 @@ from .views import (
     ConvertXMLView,
     GenerateReportPDFView,
     AsyncUploadView,
+    RemoveBackgroundView,
 )
 
 urlpatterns = [
@@ -21,4 +22,5 @@ urlpatterns = [
     path('xml/', ConvertXMLView.as_view(), name='xml-convert'),
     path('report-pdf/', GenerateReportPDFView.as_view(), name='report-pdf'),
     path('async-upload/', AsyncUploadView.as_view(), name='async-upload'),
+    path('remove-background/', RemoveBackgroundView.as_view(), name='remove-background'),
 ]

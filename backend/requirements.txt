@@ -12,3 +12,5 @@ docx2pdf
 fpdf
 ffmpeg-python
 Pillow>=10.0.0
+rembg
+onnxruntime

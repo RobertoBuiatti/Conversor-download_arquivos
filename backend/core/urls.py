@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/converter/', include('converter.urls')),
     path('api/downloader/', include('downloader.urls')),
+    path('api/', include('removerfundo.urls')),
     path('', HomeView.as_view()),
 ]
