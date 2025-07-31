@@ -50,13 +50,11 @@ const RemoverFundoImagemPage = () => {
         body: formData,
       });
       if (!response.ok) {
-        // Fallback: Remoção de fundo no cliente usando U2Net WASM
+        // Fallback: Remoção de fundo no cliente usando background-removal
         try {
-          const u2netModule = await import("u2net");
-          const { U2NET } = u2netModule;
-          const u2net = await U2NET.load();
+          const { removeBackground } = await import("background-removal");
           const imgBitmap = await createImageBitmap(file);
-          const result = await u2net.segment(imgBitmap);
+          const result = await removeBackground(imgBitmap);
           const canvas = document.createElement("canvas");
           canvas.width = result.width;
           canvas.height = result.height;
@@ -65,7 +63,7 @@ const RemoverFundoImagemPage = () => {
           const imageUrl = canvas.toDataURL("image/png");
           setBgRemovedImage(imageUrl);
         } catch {
-          setError("Falha no servidor e o pacote u2net não está instalado ou não é suportado no ambiente Render.");
+          setError("Falha no servidor e no fallback local (background-removal).");
         }
         setLoading(false);
         return;
