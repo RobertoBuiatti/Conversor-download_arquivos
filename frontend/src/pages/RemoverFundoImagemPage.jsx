@@ -44,8 +44,8 @@ const RemoverFundoImagemPage = () => {
         image.src = URL.createObjectURL(file);
       });
 
-      // Define largura máxima para processamento (ex: 1024px)
-      const maxWidth = 1024;
+      // Define largura máxima para processamento (ex: 512px)
+      const maxWidth = 512;
       const scale = img.width > maxWidth ? maxWidth / img.width : 1;
       const newWidth = Math.round(img.width * scale);
       const newHeight = Math.round(img.height * scale);

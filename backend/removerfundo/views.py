@@ -13,23 +13,15 @@ def remove_background(request):
         # Importa rembg apenas quando necessário
         from rembg import remove
 
-        # Se o arquivo for muito grande, processa por partes
-        if input_image.size[0] * input_image.size[1] > 4000 * 4000:
-            # Divide a imagem em quadrantes e processa cada um separadamente
-            width, height = input_image.size
-            quadrants = [
-                (0, 0, width // 2, height // 2),
-                (width // 2, 0, width, height // 2),
-                (0, height // 2, width // 2, height),
-                (width // 2, height // 2, width, height)
-            ]
-            output_image = Image.new("RGBA", input_image.size)
-            for box in quadrants:
-                region = input_image.crop(box)
-                processed = remove(region)
-                output_image.paste(processed, box)
-        else:
-            output_image = remove(input_image)
+        # Se o arquivo for muito grande, redimensiona para evitar uso excessivo de memória
+        max_width = 512
+        max_height = 512
+        width, height = input_image.size
+        if width > max_width or height > max_height:
+            scale = min(max_width / width, max_height / height)
+            new_size = (int(width * scale), int(height * scale))
+            input_image = input_image.resize(new_size, Image.LANCZOS)
+        output_image = remove(input_image)
 
         buffer = io.BytesIO()
         output_image.save(buffer, format="PNG")
